@@ -10,7 +10,7 @@
 
 ## 项目内容
 
-- [超市人员多线程模拟](./src/supermarket/readme.md)
-- [相邻数字筛选器](./src/adjacentFilter/readme.md)
 - [发送者与接收者](./src/senderAndMulReceivers/readme.md)
-
+- [相邻数字筛选器](./src/adjacentFilter/readme.md)
+- [超市人员多线程模拟](./src/supermarket/readme.md)
+- [飞机票订票多线程模拟](./src/planeBooking/readme.md)

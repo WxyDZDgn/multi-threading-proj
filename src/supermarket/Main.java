@@ -3,7 +3,7 @@ package supermarket;
 import java.util.concurrent.Semaphore;
 
 public class Main {
-	public static void main(String [] args) {
+	public static void main(String [] args) throws InterruptedException {
 		final int NUMBER_OF_CUSTOMERS = 10; // 顾客数量
 		final int NUMBER_OF_COUNTERS = 3; // 收银员数量
 		final int MAX_RANDOM_AMOUNT = 3; // 顾客同种商品最大购买数
@@ -27,22 +27,13 @@ public class Main {
 			threads4Counters[i] = new Thread(counters[i], String.format("Counter %d", i));
 			threads4Counters[i].start();
 		}
-		try {
-			arrival.acquire(NUMBER_OF_COUNTERS);
-		} catch(InterruptedException e) {
-			throw new RuntimeException(e);
-		}
+		arrival.acquire(NUMBER_OF_COUNTERS);
 		System.out.println("-----Market is now OPEN!-----");
 		for(int i = 0; i < NUMBER_OF_CUSTOMERS; ++ i) {
 			threads4Customers[i] = new Thread(customers[i], String.format("Customer %d", i));
 			threads4Customers[i].start();
 		}
-
-		try {
-			left.acquire(NUMBER_OF_CUSTOMERS);
-		} catch(InterruptedException e) {
-			throw new RuntimeException(e);
-		}
+		left.acquire(NUMBER_OF_CUSTOMERS);
 		System.out.println("-----Market is now CLOSED!-----");
 		for(int i = 0; i < NUMBER_OF_COUNTERS; ++ i) {
 			counters[i].wakeup();

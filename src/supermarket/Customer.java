@@ -27,13 +27,13 @@ public class Customer implements Runnable {
 	@Override
 	public void run() {
 		int countTypes = market.getCountTypes();
-		System.out.printf("Customer %d - ARRIVED!\n", id);
+		printf("Customer %d - ARRIVED!\n", id);
 		for(int i = 0; i < countTypes; ++ i) {
 			boolean purchase = Math.random() <= willing2Purchase;
 			if(!purchase) continue;
 			int amount = (int)((1 - Math.random()) * maxRandomAmount);
 			cart.putIfAbsent(i, market.purchase(i, amount));
-			System.out.printf("Customer %d - purchased: %d - amount: %d\n", id, i, amount);
+			printf("Customer %d - purchased: %d - amount: %d\n", id, i, amount);
 			randomSleep();
 		}
 		// 添加查看收银台哪个位置人最少并等待队列
@@ -43,15 +43,13 @@ public class Customer implements Runnable {
 				minIndex = i;
 		}
 		this.currentCounter = market.getCounter(minIndex);
-		System.out.printf("Customer %d - via %d counter\n", id, minIndex);
+		printf("Customer %d - waiting counter %d...\n", id, minIndex);
 		currentCounter.wakeup(this);
-		System.out.printf("Customer %d - waiting 4 counter\n", id);
 		try {
 			this.waiting4Check.acquire();
 		} catch(InterruptedException e) {
 			throw new RuntimeException(e);
 		}
-		System.out.printf("Customer %d - counter is ready.\n", id);
 		cart.forEach((key, value) -> {
 			if(value == 0) return;
 			randomSleep();
@@ -64,9 +62,9 @@ public class Customer implements Runnable {
 		});
 		currentCounter.check(-1, -1);
 
-		System.out.printf("Customer %d - total cost: %.2f\n", id, total);
+		printf("Customer %d - total cost: %.2f\n", id, total);
 		randomSleep();
-		System.out.printf("Customer %d - LEFT!\n", id);
+		printf("Customer %d - LEFT!\n", id);
 		left.release();
 	}
 	public void wakeup(Counter currentCounter) {
@@ -75,11 +73,8 @@ public class Customer implements Runnable {
 		this.waiting4Check.release();
 	}
 	public void addTotal(double cur) {
-		System.out.printf("Customer %d - cost: %.2f\n", id, cur);
+		printf("Customer %d - cost: %.2f\n", id, cur);
 		total += cur;
-	}
-	public int getId() {
-		return id;
 	}
 	private void randomSleep() {
 		try {
@@ -87,5 +82,9 @@ public class Customer implements Runnable {
 		} catch(InterruptedException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	private void printf(String s, Object ... args) {
+		String l = "\u001b[32m%s\u001b[0m".formatted(s);
+		System.out.printf(l, args);
 	}
 }

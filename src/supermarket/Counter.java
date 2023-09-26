@@ -28,10 +28,10 @@ public class Counter implements Runnable {
 	@Override
 	public void run() {
 		arrival.release();
-		System.out.printf("Counter %d - ARRIVED!\n", id);
+		printf("Counter %d - ARRIVED!\n", id);
 		while(true) {
 			busy.release();
-			System.out.printf("Counter %d - available\n", id);
+			printf("Counter %d - available\n", id);
 			try {
 				this.waiting4Check.acquire();
 			} catch(InterruptedException e) {
@@ -40,7 +40,6 @@ public class Counter implements Runnable {
 			if(queue.isEmpty()) break;
 			Customer current = queue.poll();
 			randomSleep();
-			System.out.printf("Counter %d - checking for customer %d\n", id, current.getId());
 			current.wakeup(this);
 			try {
 				this.waiting4Check.acquire();
@@ -48,15 +47,14 @@ public class Counter implements Runnable {
 				throw new RuntimeException(e);
 			}
 			randomSleep();
-			System.out.printf("Counter %d - customer is ready\n", id);
 			double currentBargain = 0;
 			while(itemId >= 0 && itemAmount >= 0) {
 				double itemPrice = market.getPrice(itemId);
 				double item = itemPrice * itemAmount;
 				current.addTotal(item);
 				currentBargain += item;
-				System.out.printf("Counter %d - item: %d - price: %.2f - amount: %d\n", id, itemId, itemPrice, itemAmount);
-				System.out.printf("Counter %d - handled: %.2f\n", id, item);
+				printf("Counter %d - item: %d - price: %.2f - amount: %d\n", id, itemId, itemPrice, itemAmount);
+				printf("Counter %d - handled: %.2f\n", id, item);
 				current.wakeup(this);
 				try {
 					this.waiting4Check.acquire();
@@ -66,11 +64,11 @@ public class Counter implements Runnable {
 				randomSleep();
 			}
 			total += currentBargain;
-			System.out.printf("Counter %d - current bargain: %.2f\n", id, currentBargain);
+			printf("Counter %d - current bargain: %.2f\n", id, currentBargain);
 			randomSleep();
 		}
-		System.out.printf("Counter %d - total bargain: %.2f\n", id, total);
-		System.out.printf("Counter %d - LEFT!\n", id);
+		printf("Counter %d - total bargain: %.2f\n", id, total);
+		printf("Counter %d - LEFT!\n", id);
 	}
 	public void check(int id, int amount) {
 		itemId = id;
@@ -99,5 +97,9 @@ public class Counter implements Runnable {
 		} catch(InterruptedException e) {
 			throw new RuntimeException(e);
 		}
+	}
+	private void printf(String s, Object ... args) {
+		String l = "\u001b[33m%s\u001b[0m".formatted(s);
+		System.out.printf(l, args);
 	}
 }
